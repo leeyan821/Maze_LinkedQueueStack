@@ -81,7 +81,7 @@ public:
 					Location2D entry(i, z);
 					if (num == 1)
 						stack.push(new Node(i, z)); //스택 입구!
-					else if (num == 2)
+					else if (num == 2 || num == 3)
 						locQueue.enqueue(new Node(i, z));
 				}
 			}
@@ -132,6 +132,10 @@ public:
 		{
 			return key;
 		}
+		else if (key == 224)
+		{
+			return _getch();
+		}
 		return 0;
 	}
 
@@ -139,6 +143,7 @@ public:
 	{
 		while (locQueue.isEmpty() == false) //큐가 비어있지 않는 동안
 		{
+			printMap();
 			if (get_Enterkey() == 13)
 			{
 				system("cls");
@@ -149,23 +154,22 @@ public:
 				int r = here->row;
 				int c = here->col;
 
+				printf("Now Position: (%d,%d) \n", r, c);
+
 				if (map[r][c] == '9') { //출구이면 성공
+					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
 					printMap();
-
 					return;
 				}
-				else
+				else if (map[r][c] != '.')
 				{
 					map[r][c] = '.';
 					if (isValidLoc(r - 1, c)) locQueue.enqueue(new Node(r - 1, c));
 					if (isValidLoc(r + 1, c)) locQueue.enqueue(new Node(r + 1, c));
 					if (isValidLoc(r, c - 1)) locQueue.enqueue(new Node(r, c - 1));
 					if (isValidLoc(r, c + 1)) locQueue.enqueue(new Node(r, c + 1));
-					printf("Now Position: (%d,%d) \n", r, c);
-					printMap();
-
 				}
 			}
 		}
@@ -203,5 +207,118 @@ public:
 			}
 		}
 		printf("미로 탐색 실패\n");
+	}
+
+	void QueueMazeGame()
+	{
+		int count = 0;
+		while (locQueue.isEmpty() == false) //큐가 비어있지 않는 동안
+		{
+			Location2D* here = locQueue.peek(); //큐의 상단 front 객체 복사
+			int r = here->row;
+			int c = here->col;
+
+			int key = get_Enterkey();
+
+			switch (key)
+			{
+			case 72: //상
+				if (map[r - 1][c] == '9') //다음 위치가 출구이면 성공
+				{
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					system("cls");
+					printf("\n!탐색 성공!\n");
+					printf("=====[ Result ]=====\n");
+					printf("이동 %d번 ", count);
+					printMap();
+					return;
+				}
+				else if (isValidLoc(r - 1, c) && map[r - 1][c] != '0') //갈 수 있는 위치이고, 벽이 아니면
+				{
+					system("cls"); 
+					map[r][c] = '1'; //이전 위치 길로 변경
+					map[r - 1][c] = '.';  //이동한 위치
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r - 1, c)); //이동한 위치 큐에 삽입
+					printMap();
+					count++;
+				}
+				break;
+			case 80: //하
+				if (map[r + 1][c] == '9')
+				{
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					system("cls");
+					printf("\n!탐색 성공!\n");
+					printf("=====[ Result ]=====\n");
+					printf("이동 %d번 ", count);
+					printMap();
+					return;
+				}
+				else if (isValidLoc(r + 1, c) && map[r + 1][c] != '0')
+				{
+					system("cls");
+
+					map[r][c] = '1';
+					map[r + 1][c] = '.';
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r + 1, c));
+					printMap();
+					count++;
+				}
+				break;
+			case 75: //좌
+				if (map[r][c - 1] == '9')
+				{
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					system("cls");
+					printf("\n!탐색 성공!\n");
+					printf("=====[ Result ]=====\n");
+					printf("이동 %d번 ", count);
+					printMap();
+					return;
+				}
+				else if (isValidLoc(r, c - 1) && map[r][c - 1] != '0')
+				{
+					system("cls");
+					map[r][c] = '1';
+					map[r][c - 1] = '.';
+
+					locQueue.dequeue(); //큐 상단 객체 삭제
+
+					locQueue.enqueue(new Node(r, c - 1));
+					printMap();
+					count++;
+				}
+				break;
+			case 77: //우
+				if (map[r][c + 1] == '9')
+				{
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					system("cls");
+					printf("\n!탐색 성공!\n");
+					printf("=====[ Result ]=====\n");
+					printf("이동 %d번 ", count);
+					printMap();
+					return;
+				}
+				else if (isValidLoc(r, c + 1) && map[r][c + 1] != '0')
+				{
+					system("cls");
+
+					map[r][c] = '1';
+					map[r][c + 1] = '.';
+
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r, c + 1));
+					printMap();
+					count++;
+				}
+				break;
+			default:
+				printf("방향키만 입력해주세요.\n");
+				break;
+			}
+		}
 	}
 };
