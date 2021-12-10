@@ -39,7 +39,7 @@ public:
 		delete[]map;
 	}
 
-	bool isValidLoc(int r, int c)
+	bool isValidLoc(int r, int c) //배열 안에 있고 길이거나 출구이면 갈 수 있음
 	{
 		if (r < 0 || c < 0 || r >= height || c >= width) return false;
 		else return map[r][c] == '0' || map[r][c] == 'x';
@@ -77,7 +77,7 @@ public:
 				fp >> c;
 				map[i][z] = c;
 
-				//큐에 입구 위치 삽입
+				//큐, 스택에 입구 위치 삽입
 				if (map[i][z] == 'e')
 				{
 					Location2D entry(i, z);
@@ -151,18 +151,19 @@ public:
 		int count = 0;
 		while (locQueue.isEmpty() == false) //큐가 비어있지 않는 동안
 		{
-			printMap();
-			if (get_Enterkey() == 13)
+			printMap(); 
+			if (get_Enterkey() == 13) //엔터 키를 누르면
 			{
-				system("cls");
+				system("cls"); 
 
 				Location2D* here = locQueue.peek(); //큐의 상단 front 객체 복사
 				locQueue.dequeue(); //큐 상단 객체 삭제
+
 				count++;
 				int r = here->row;
 				int c = here->col;
 
-				printf("Now Position: (%d,%d) \n", r, c);
+				printf("Now Position: (%d,%d) \n", r, c); //상단 front 객체의 위치가 now position
 
 				if (map[r][c] == 'x') { //출구이면 성공
 					system("cls");
@@ -172,9 +173,10 @@ public:
 					printMap();
 					return;
 				}
-				else if (map[r][c] != '.')
+				else if (map[r][c] != '.') //지나온 길이 아니면
 				{
-					map[r][c] = '.';
+					map[r][c] = '.'; //지나온 길로 표시
+					//갈 수 있는 길이라면 큐에 삽입
 					if (isValidLoc(r - 1, c)) locQueue.enqueue(new Node(r - 1, c));
 					if (isValidLoc(r + 1, c)) locQueue.enqueue(new Node(r + 1, c));
 					if (isValidLoc(r, c - 1)) locQueue.enqueue(new Node(r, c - 1));
@@ -219,8 +221,17 @@ public:
 	}
 	
 	
-	//______________________________________________________________________________________________________
-
+	/*연결리스트 큐를 사용해 사용자가 직접 미로를 찾을 수 있는 게임을 만들어 봤습니다
+	 1. 먼저 입구 위치를 큐에 삽입하고(roadMap()에서)
+	 2. 큐가 비어있지 않는 동안
+	 -> 1. 큐에 상단 객체를 복사
+	    2. 방향키를 입력받고
+	    3. 해당 방향의 위치가 출구이면 큐의 맨앞 요소를 삭제한 후 다시 이동한 위치를 큐에 삽입하고 삭제합니다.
+		   이전위치는 다시 길로, 이동한 위치는 현재 위치로 표시합니다. 그리고 게임이 종료됩니다.
+	    4. 해당 방향의 위치가 갈 수 있는 길이고, 벽이 아니면 큐의 맨앞 요소를 삭제한 후 다시 이동한 위치를 큐에 삽입하고 삭제합니다.
+		   이전위치는 다시 길로, 이동한 위치는 현재 위치로 표시합니다.
+	 3. count는 dequeue 할 때 마다 증가합니다.	
+	*/ 
 
 	void QueueMazeGame()
 	{
@@ -238,7 +249,7 @@ public:
 			case 72: //상
 				if (map[r - 1][c] == 'x') //다음 위치가 출구이면 성공
 				{
-					map[r][c] = '0';
+					map[r][c] = '0'; //이전 위치 길로 변경
 					map[r - 1][c] = '.';  //이동한 위치
 					locQueue.dequeue(); //큐 상단 객체 삭제
 					locQueue.enqueue(new Node(r - 1, c)); //이동한 위치 큐에 삽입
@@ -267,9 +278,9 @@ public:
 				{
 					map[r][c] = '0';
 					map[r + 1][c] = '.';
-					locQueue.dequeue(); //큐 상단 객체 삭제
-					locQueue.enqueue(new Node(r + 1, c)); //이동한 위치 큐에 삽입
-					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.dequeue(); 
+					locQueue.enqueue(new Node(r + 1, c)); 
+					locQueue.dequeue(); 
 					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
@@ -281,10 +292,9 @@ public:
 				else if (isValidLoc(r + 1, c) && map[r + 1][c] != '1')
 				{
 					system("cls");
-
 					map[r][c] = '0';
 					map[r + 1][c] = '.';
-					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.dequeue(); 
 					locQueue.enqueue(new Node(r + 1, c));
 					printMap();
 					count++;
@@ -295,9 +305,9 @@ public:
 				{
 					map[r][c] = '0';
 					map[r][c - 1] = '.';
-					locQueue.dequeue(); //큐 상단 객체 삭제
-					locQueue.enqueue(new Node(r, c - 1)); //이동한 위치 큐에 삽입
-					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.dequeue();
+					locQueue.enqueue(new Node(r, c - 1));
+					locQueue.dequeue(); 
 					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
@@ -311,9 +321,7 @@ public:
 					system("cls");
 					map[r][c] = '0';
 					map[r][c - 1] = '.';
-
-					locQueue.dequeue(); //큐 상단 객체 삭제
-
+					locQueue.dequeue();
 					locQueue.enqueue(new Node(r, c - 1));
 					printMap();
 					count++;
@@ -324,9 +332,9 @@ public:
 				{
 					map[r][c] = '0';
 					map[r][c + 1] = '.';
-					locQueue.dequeue(); //큐 상단 객체 삭제
-					locQueue.enqueue(new Node(r, c + 1)); //이동한 위치 큐에 삽입
-					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.dequeue();
+					locQueue.enqueue(new Node(r, c + 1)); 
+					locQueue.dequeue();
 					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
@@ -338,11 +346,9 @@ public:
 				else if (isValidLoc(r, c + 1) && map[r][c + 1] != '1')
 				{
 					system("cls");
-
 					map[r][c] = '0';
 					map[r][c + 1] = '.';
-
-					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.dequeue();
 					locQueue.enqueue(new Node(r, c + 1));
 					printMap();
 					count++;
@@ -509,9 +515,9 @@ public:
 				printf("=====[ Result ]=====\n");
 				printf("스택 탐색 %d회, 큐 탐색 %d회 \n", stackCount, queueCount);
 				if (stackCount > queueCount)
-					printf("큐(깊이 우선 탐색)가 더 빠릅니다.\n");
+					printf("큐(너비 우선 탐색)가 더 빠릅니다.\n");
 				else if(stackCount<queueCount)
-					printf("스택(너비 우선 탐색)이 더 빠릅니다.\n");
+					printf("스택(깊이 우선 탐색)이 더 빠릅니다.\n");
 				else if(stackCount==queueCount)
 					printf("스택과 큐의 탐색 횟수가 동일합니다.\n");
 

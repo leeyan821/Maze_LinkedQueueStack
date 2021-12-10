@@ -143,11 +143,9 @@
     <ClInclude Include="Link.h" />
     <ClInclude Include="Location2D.h" />
     <ClInclude Include="Maze.h" />
-    <ClInclude Include="MazeGame.h" />
     <ClInclude Include="Node.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LinkedStack.cpp" />
     <ClCompile Include="Maze.cpp" />
   </ItemGroup>
   <ItemGroup>
