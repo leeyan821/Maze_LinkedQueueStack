@@ -495,59 +495,77 @@ public:
 	}
 	void compare()
 	{
+		int stackCount = 0;
+		int queueCount = 0;
 		while (1)
 		{
 			comparePrintMap();
 			Sleep(300);
 			system("cls");
 
-			Node* hereStack = stack.peek();
-			stack.pop();
-			int sr = hereStack->row;
-			int sc = hereStack->col;
-
-			Location2D* hereQueue = locQueue.peek(); 
-			locQueue.dequeue(); 
-			int qr = hereQueue->row;
-			int qc = hereQueue->col;
-
-			printf("Stack Now Position: (%d,%d) \n", sr, sc);
-			printf("Queue Now Position: (%d,%d) \n", qr, qc);
-
-			if (stackMap[sr][sc] == 'x')
+			if (locQueue.isEmpty() == true && stack.isEmpty() == true)
 			{
-				system("cls");
-				printf("\n!Stack 탐색 성공!\n");
+				printf("\n!탐색 성공!\n");
 				printf("=====[ Result ]=====\n");
+				printf("스택 탐색 %d회, 큐 탐색 %d회 \n", stackCount, queueCount);
+				if (stackCount > queueCount)
+					printf("큐(깊이 우선 탐색)가 더 빠릅니다.\n");
+				else if(stackCount<queueCount)
+					printf("스택(너비 우선 탐색)이 더 빠릅니다.\n");
+				else if(stackCount==queueCount)
+					printf("스택과 큐의 탐색 횟수가 동일합니다.\n");
+
 				comparePrintMap();
 				return;
 			}
-			else if (stackMap[sr][sc] != '.')
-			{
-				stackMap[sr][sc] = '.';
-				if (stack_isValidLoc(sr - 1, sc)) stack.push(new Node(sr - 1, sc));
-				if (stack_isValidLoc(sr + 1, sc)) stack.push(new Node(sr + 1, sc));
-				if (stack_isValidLoc(sr, sc - 1)) stack.push(new Node(sr, sc - 1));
-				if (stack_isValidLoc(sr, sc + 1)) stack.push(new Node(sr, sc + 1));
-			}
 
-			if (queueMap[qr][qc] == 'x') { 
-				system("cls");
-				printf("\n!Queue 탐색 성공!\n");
-				printf("=====[ Result ]=====\n");
-				comparePrintMap();
-				return;
-			}
-			else if (queueMap[qr][qc] != '.')
+			if (stack.isEmpty() == false)
 			{
-				queueMap[qr][qc] = '.';
-				if (queue_isValidLoc(qr - 1, qc)) locQueue.enqueue(new Node(qr - 1, qc));
-				if (queue_isValidLoc(qr + 1, qc)) locQueue.enqueue(new Node(qr + 1, qc));
-				if (queue_isValidLoc(qr, qc - 1)) locQueue.enqueue(new Node(qr, qc - 1));
-				if (queue_isValidLoc(qr, qc + 1)) locQueue.enqueue(new Node(qr, qc + 1));
+				Node* hereStack = stack.peek();
+				stack.pop();
+				int sr = hereStack->row;
+				int sc = hereStack->col;
+				stackCount++;
+				printf("Stack Now Position: (%d,%d) \n", sr, sc);
+
+				if (stackMap[sr][sc] == 'x')
+				{
+					while(stack.isEmpty() == false)
+						stack.pop();
+				}
+				else if (stackMap[sr][sc] != '.')
+				{
+					stackMap[sr][sc] = '.';
+					if (stack_isValidLoc(sr - 1, sc)) stack.push(new Node(sr - 1, sc));
+					if (stack_isValidLoc(sr + 1, sc)) stack.push(new Node(sr + 1, sc));
+					if (stack_isValidLoc(sr, sc - 1)) stack.push(new Node(sr, sc - 1));
+					if (stack_isValidLoc(sr, sc + 1)) stack.push(new Node(sr, sc + 1));
+				}
+			}
+			if (locQueue.isEmpty() == false)
+			{
+				Location2D* hereQueue = locQueue.peek();
+				locQueue.dequeue();
+				int qr = hereQueue->row;
+				int qc = hereQueue->col;
+				queueCount++;
+				printf("Queue Now Position: (%d,%d) \n", qr, qc);
+
+				if (queueMap[qr][qc] == 'x')
+				{
+					while (locQueue.isEmpty() == false)
+						locQueue.dequeue();
+				}
+				else if (queueMap[qr][qc] != '.')
+				{
+					queueMap[qr][qc] = '.';
+					if (queue_isValidLoc(qr - 1, qc)) locQueue.enqueue(new Node(qr - 1, qc));
+					if (queue_isValidLoc(qr + 1, qc)) locQueue.enqueue(new Node(qr + 1, qc));
+					if (queue_isValidLoc(qr, qc - 1)) locQueue.enqueue(new Node(qr, qc - 1));
+					if (queue_isValidLoc(qr, qc + 1)) locQueue.enqueue(new Node(qr, qc + 1));
+				}
 			}
 		}
-
 		printf("미로 탐색 실패\n");
 	}
 };
