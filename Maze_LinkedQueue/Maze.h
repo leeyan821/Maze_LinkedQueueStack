@@ -238,7 +238,12 @@ public:
 			case 72: //상
 				if (map[r - 1][c] == 'x') //다음 위치가 출구이면 성공
 				{
+					map[r][c] = '0';
+					map[r - 1][c] = '.';  //이동한 위치
 					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r - 1, c)); //이동한 위치 큐에 삽입
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
@@ -260,7 +265,12 @@ public:
 			case 80: //하
 				if (map[r + 1][c] == 'x')
 				{
+					map[r][c] = '0';
+					map[r + 1][c] = '.';
 					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r + 1, c)); //이동한 위치 큐에 삽입
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
@@ -283,7 +293,12 @@ public:
 			case 75: //좌
 				if (map[r][c - 1] == 'x')
 				{
+					map[r][c] = '0';
+					map[r][c - 1] = '.';
 					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r, c - 1)); //이동한 위치 큐에 삽입
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
@@ -307,7 +322,12 @@ public:
 			case 77: //우
 				if (map[r][c + 1] == 'x')
 				{
+					map[r][c] = '0';
+					map[r][c + 1] = '.';
 					locQueue.dequeue(); //큐 상단 객체 삭제
+					locQueue.enqueue(new Node(r, c + 1)); //이동한 위치 큐에 삽입
+					locQueue.dequeue(); //큐 상단 객체 삭제
+					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
@@ -475,10 +495,10 @@ public:
 	}
 	void compare()
 	{
-		while (locQueue.isEmpty() == false && stack.isEmpty() == false)
+		while (1)
 		{
 			comparePrintMap();
-			Sleep(100);
+			Sleep(300);
 			system("cls");
 
 			Node* hereStack = stack.peek();
