@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Maze.h"
+#include <time.h>
 using namespace std;
 
 class MazeGame {
@@ -53,7 +54,7 @@ public:
 				}
 			}
 		}
-		//fclose(fd);
+		fclose(fd);
 		fp.close();
 	}
 	void showMap() {
