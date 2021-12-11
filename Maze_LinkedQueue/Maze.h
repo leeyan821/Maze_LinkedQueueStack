@@ -87,7 +87,7 @@ public:
 						stack.push(new Node(i, z));
 					else if (num == 2 || num == 5)
 						locQueue.enqueue(new Node(i, z));
-					else if (num == 4 || num == 3)
+					else if (num == 4)
 					{
 						stack.push(new Node(i, z));
 						locQueue.enqueue(new Node(i, z));
@@ -178,6 +178,7 @@ public:
 				printf("Now Position: (%d,%d) \n", r, c); //상단 front 객체의 위치가 now position
 
 				if (map[r][c] == 'x') { //출구이면 성공
+					locQueue.dequeue();
 					system("cls");
 					printf("!탐색 성공!\n");
 					printf("dequeue %d번 \n", count);
@@ -640,6 +641,7 @@ public:
 			printf("(%d,%d) ", r, c);
 
 			if (map[r][c] == 'x') {
+				locQueue.dequeue();
 				printf("\n!탐색 성공!\n");
 				return;
 			}

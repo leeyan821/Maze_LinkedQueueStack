@@ -36,9 +36,9 @@ void main()
 		else if (num == 3)
 		{
 			system("cls");
-			maze.roadMap("Maze.txt", num);
+			maze.roadMap("Maze.txt", 1);
 			maze.resultSatckWay();
-			maze.roadMap("Maze.txt", num);
+			maze.roadMap("Maze.txt", 2);
 			maze.resultQueueWay();
 
 		}
