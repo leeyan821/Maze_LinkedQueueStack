@@ -53,7 +53,7 @@ void main()
 		{
 			maze.roadMap("Maze.txt", num);
 			system("cls");
-			printf("<LinkedQueueMaze> Start!!\n-> Enter and Show Miro Program");
+			printf("<LinkedQueueMazeGame> Start!!\n-> Enter กๆ ก็ ก่ ก้");
 			maze.printMap();
 			maze.QueueMazeGame();
 
