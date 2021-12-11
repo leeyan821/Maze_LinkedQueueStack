@@ -121,6 +121,7 @@ public:
 				{
 					map[i][j] = '2';
 					ER = j; EC = i;
+					break;
 				}
 			}
 		}
