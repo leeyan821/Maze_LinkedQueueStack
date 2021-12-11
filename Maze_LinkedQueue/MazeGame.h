@@ -7,6 +7,8 @@ class MazeGame {
 	char** map = NULL;
 	int width;
 	int height;
+	int ER = 0;
+	int EC = 0;
 	Maze maze;
 	LinkedStack stackMaze;
 	LinkedStack enemy;
@@ -105,27 +107,31 @@ public:
 		showMap();
 		return;
 	}
+	void MakeE()
+	{
+		for (int i = 1; i < height - 1; i++)
+		{
+			for (int z = width - 1; z > 0; z--)
+			{
+				if (map[i][z] == '0')
+				{
+					map[i][z] = '2';
+					ER = z; EC = i;
+					printf("%d %d", i, z);
+					return;
+				}
+			}
+		}
+	}
 	//미로 게임 ver2
 	void MazeGameStack()
 	{
 		int num = 0;
-		int ER = 0;
-		int EC = 0;	//적의 처음 위치
 		LinkedStack enemy;
-
-		for (int i = height - 1; i > height / 2; i--)	//적의 위치 지정
-		{
-			for (int j = width - 1; j > width / 2; j--)
-			{
-				if (map[i][j] == '0')	//길인 경우 위치로 선정
-				{
-					map[i][j] = '2';
-					ER = j; EC = i;
-					break;
-				}
-			}
-		}
+		bool ene = false;
+		MakeE();
 		printf("Enemy is Coming!! Move.");
+		//첫 위치 push
 		enemy.push(new Node(EC, ER));
 		showMap();
 		int cnt = 0;
@@ -149,14 +155,14 @@ public:
 				switch (nu)
 				{
 				case 0:	//상 이동
-					if (er - 1 > 0 && ec > 0 && er - 1 <= height && ec <= width && map[er - 1][ec] == '0')//상단이 통로인 경우
+					if (er - 1 > 0 && ec > 0 && er + 1 <= height && ec <= width && map[er - 1][ec] == '0')//상단이 통로인 경우
 					{
 						enemy.pop();
 						enemy.push(new Node(er - 1, ec));
 						map[er - 1][ec] = '2';
 						break;
 					}
-					else if (map[er - 1][ec] == '.')	//자신이 적의 상단 위치한 경우 실패
+					else if (er - 1 > 0 && ec > 0 && er + 1 <= height && ec <= width && map[er - 1][ec] == '.')	//자신이 적의 상단 위치한 경우 실패
 					{
 						enemy.pop();
 						map[er - 1][ec] = '2';
@@ -164,7 +170,8 @@ public:
 						showMap();
 						return;
 					}
-					continue;
+					else
+						continue;
 				case 1:	//하 이동
 					if (er + 1 > 0 && ec > 0 && er + 1 <= height && ec <= width && map[er + 1][ec] == '0')//하단이 통로인 경우
 					{
@@ -173,7 +180,7 @@ public:
 						map[er + 1][ec] = '2';
 						break;
 					}
-					else if (map[er + 1][ec] == '.')	//자신이 적의 하단에 위치한 경우 실패
+					else if (er + 1 > 0 && ec > 0 && er + 1 <= height && ec <= width && map[er + 1][ec] == '.')	//자신이 적의 하단에 위치한 경우 실패
 					{
 						enemy.pop();
 						map[er + 1][ec] = '2';
@@ -181,7 +188,8 @@ public:
 						showMap();
 						return;
 					}
-					continue;
+					else
+						continue;
 				case 2:	//좌 이동
 					if (er > 0 && ec - 1 > 0 && er <= height && ec - 1 <= width && map[er][ec - 1] == '0')//좌측이 통로인 경우
 					{
@@ -190,7 +198,7 @@ public:
 						map[er][ec - 1] = '2';
 						break;
 					}
-					else if (map[er][ec - 1] == '.')	//자신이 적의 좌측에 위치한 경우 실패
+					else if (er > 0 && ec - 1 > 0 && er <= height && ec - 1 <= width && map[er][ec - 1] == '.')	//자신이 적의 좌측에 위치한 경우 실패
 					{
 						enemy.pop();
 						map[er][ec - 1] = '2';
@@ -198,7 +206,8 @@ public:
 						showMap();
 						return;
 					}
-					continue;
+					else
+						continue;
 				case 3:	//우 이동
 					if (er > 0 && ec + 1 > 0 && er <= height && ec + 1 <= width && map[er][ec + 1] == '0')//우측이 통로인 경우
 					{
@@ -207,7 +216,7 @@ public:
 						map[er][ec + 1] = '2';
 						break;
 					}
-					else if (map[er][ec + 1] == '.')	//자신이 적의 좌측에 위치한 경우 실패
+					else if (er > 0 && ec + 1 > 0 && er <= height && ec + 1 <= width && map[er][ec + 1] == '.')	//자신이 적의 좌측에 위치한 경우 실패
 					{
 						enemy.pop();
 						map[er][ec + 1] = '2';
@@ -215,7 +224,8 @@ public:
 						showMap();
 						return;
 					}
-					continue;
+					else
+						continue;
 				}
 				break;
 			}
@@ -241,7 +251,7 @@ public:
 					stackMaze.pop();
 					stackMaze.push(new Node(r - 1, c));
 				}
-				else if (map[r - 1][c] == '2')	//상단 적이 있는 경우 실패
+				else if (r - 1 > 0 && c > 0 && r - 1 <= height && c <= width && map[r - 1][c] == '2')	//상단 적이 있는 경우 실패
 				{
 					map[r][c] = '0';
 					map[r - 1][c] = '2';
@@ -250,8 +260,6 @@ public:
 					showMap();
 					return;
 				}
-				else
-					printf("Can't Move\n");	//벽인 경우
 				break;
 			case 80:	//하
 				if (map[r + 1][c] == 'x') {	//하단 출구 성공
@@ -266,7 +274,7 @@ public:
 					stackMaze.pop();
 					stackMaze.push(new Node(r + 1, c));
 				}
-				else if (map[r + 1][c] == '2')	//하단 적 위치한 경우 실패
+				else if (r + 1 > 0 && c > 0 && r + 1 <= height && c <= width && map[r + 1][c] == '2')	//하단 적 위치한 경우 실패
 				{
 					map[r][c] = '0';
 					map[r + 1][c] = '2';
@@ -275,8 +283,6 @@ public:
 					showMap();
 					return;
 				}
-				else
-					printf("Can't Move\n");	//벽
 				break;
 			case 75:	//좌
 				if (map[r][c - 1] == 'x') {	//좌측 출구 성공
@@ -291,7 +297,7 @@ public:
 					stackMaze.pop();
 					stackMaze.push(new Node(r, c - 1));
 				}
-				else if (map[r][c - 1] == '2')	//좌측 적 위치 실패
+				else if (r > 0 && c - 1 > 0 && r <= height && c - 1 <= width && map[r][c - 1] == '2')	//좌측 적 위치 실패
 				{
 					map[r][c] = '0';
 					map[r][c - 1] = '2';
@@ -300,8 +306,6 @@ public:
 					showMap();
 					return;
 				}
-				else
-					printf("Can't Move\n");	//벽
 				break;
 			case 77:	//우
 				if (map[r][c + 1] == 'x') {	//우측 출구 성공
@@ -316,7 +320,7 @@ public:
 					stackMaze.pop();
 					stackMaze.push(new Node(r, c + 1));
 				}
-				else if (map[r][c + 1] == '2')	//우측 적 위치 실패
+				else if (r > 0 && c + 1 > 0 && r <= height && c + 1 <= width && map[r][c + 1] == '2')	//우측 적 위치 실패
 				{
 					map[r][c] = '0';
 					map[r][c + 1] = '2';
@@ -325,8 +329,6 @@ public:
 					showMap();
 					return;
 				}
-				else
-					printf("Can't Move\n");	//벽
 				break;
 			}
 			cnt++;
@@ -345,8 +347,8 @@ public:
 		{
 			for (int j = 0; j < width; j++)
 			{
-				if (j > width / 2 - 2 && j < width / 2 + 1 && i < height - 1 && i>1)
-				{
+				if (j > width / 2 - 2 && j < width / 2 + 1 && i < height - 1 && i>1)	//미로 가로 크기 / 2 - 2 보다 크고 미로 가로크기/2 +1 보다 작은 경우, 
+				{																		//세로크기 -1 보다 작고 크기 1보다 클때 통로, 벽을 ?로 표시 
 					if (map[i][j] == '0') //길
 					{
 						std::cout << "? ";
@@ -421,6 +423,7 @@ public:
 						system("cls");
 						printf("\n!탐색 성공!\n");
 						ShowGame();
+						return;
 					}
 					else if (r - 1 > 0 && c > 0 && r - 1 <= height && c <= width && map[r - 1][c] == '0')	//상단 이동 가능 경우
 					{
@@ -445,6 +448,7 @@ public:
 						system("cls");
 						printf("\n!탐색 성공!\n");
 						ShowGame();
+						return;
 					}
 					else if (r + 1 > 0 && c > 0 && r + 1 <= height && c <= width && map[r + 1][c] == '0')	//하단 통로
 					{
@@ -469,6 +473,7 @@ public:
 						system("cls");
 						printf("\n!탐색 성공!\n");
 						ShowGame();
+						return;
 					}
 					else if (r > 0 && c - 1 > 0 && r <= height && c - 1 <= width && map[r][c - 1] == '0')	//좌측 통로
 					{

@@ -1,7 +1,6 @@
 #include "MazeGame.h"
 void main()
 {
-	system("mode con cols=120 lines=40");
 	int num;
 	Maze maze;
 	MazeGame mazegame;
