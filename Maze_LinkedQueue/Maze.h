@@ -23,7 +23,9 @@ class Maze
 public:
 
 	Maze() { init(0, 0); }
-	~Maze() { reset(); }
+	~Maze() {
+		reset();
+	}
 
 	void init(int w, int h) //map 이차원 배열을 동적으로 할당
 	{
@@ -32,14 +34,14 @@ public:
 			map[i] = new char[w];
 	}
 
-	void reset() //미로 맵 maze를 동적으로 해제
+	void reset() //이차원 배열 동적으로 해제
 	{
 		for (int i = 0; i < height; i++)
 			delete[]map[i];
 		delete[]map;
 	}
 
-	bool isValidLoc(int r, int c) //배열 안에 있고 길이거나 출구이면 갈 수 있음
+	bool isValidLoc(int r, int c)
 	{
 		if (r < 0 || c < 0 || r >= height || c >= width) return false;
 		else return map[r][c] == '0' || map[r][c] == 'x';
@@ -82,10 +84,10 @@ public:
 				{
 					Location2D entry(i, z);
 					if (num == 1)
-						stack.push(new Node(i, z)); //스택 입구!
-					else if (num == 2 || num == 3)
+						stack.push(new Node(i, z));
+					else if (num == 2 || num == 5)
 						locQueue.enqueue(new Node(i, z));
-					else if (num == 4)
+					else if (num == 4 || num == 3)
 					{
 						stack.push(new Node(i, z));
 						locQueue.enqueue(new Node(i, z));
@@ -93,6 +95,7 @@ public:
 				}
 			}
 		}
+		fclose(fd);
 		fp.close();
 	}
 
@@ -146,15 +149,24 @@ public:
 		return 0;
 	}
 
+	/* 연결리스트 큐로 구현한 미로 찾기 입니다. (이하 queue_SearchExit())
+	   사용자가 enter를 입력하면 상단 queue객체를 dequeue한 후 상,하,좌,우 순서로 갈 수 있는 길을 판단하여 enqueue하는 것을 반복합니다.
+	   queue는 선입선출이기에 미로의 모든 길을 탐색합니다(너비 우선 탐색).
+	   만약 큐의 상단 객체(front)가 출구이면 종료됩니다.
+	   count값은 dequeue할 때 마다 증가합니다.
+	*/
+
 	void queue_SearchExit()
 	{
 		int count = 0;
 		while (locQueue.isEmpty() == false) //큐가 비어있지 않는 동안
 		{
-			printMap(); 
+			printMap();
 			if (get_Enterkey() == 13) //엔터 키를 누르면
 			{
-				system("cls"); 
+				system("cls");
+
+				locQueue.display();
 
 				Location2D* here = locQueue.peek(); //큐의 상단 front 객체 복사
 				locQueue.dequeue(); //큐 상단 객체 삭제
@@ -186,16 +198,16 @@ public:
 		}
 		printf("미로 탐색 실패\n");
 	}
-
 	void stack_Search()	//스택 부분
 	{
+		int cnt = 0;
 		while (stack.isEmpty() == false) {	//스택 비어있지 않을 경우
 			printMap();
 			if (get_Enterkey() == 13) {
 				system("cls");
-				Node* here = stack.peek();
+				Location2D* here = stack.peek();
 				stack.pop();
-
+				cnt++;
 				int r = here->row;
 				int c = here->col;
 				printf("Now Position: (%d,%d) ", r, c);
@@ -205,6 +217,7 @@ public:
 					system("cls");
 					printf("\n!탐색 성공!\n");
 					printf("=====[ Result ]=====\n");
+					printf("총 횟수 : %d\n", cnt);
 					printMap();
 					return;
 				}
@@ -219,19 +232,20 @@ public:
 		}
 		printf("미로 탐색 실패\n");
 	}
-	
-	
-	/*연결리스트 큐를 사용해 사용자가 직접 미로를 찾을 수 있는 게임을 만들어 봤습니다
-	 1. 먼저 입구 위치를 큐에 삽입하고(roadMap()에서)
+
+
+	/*연결리스트 큐를 사용해 사용자가 직접 미로를 찾을 수 있는 게임을 만들어 봤습니다. (이하 QueueMazeGame())
+
+	 1. 먼저 입구 위치를 큐에 삽입하고(roadMap()에서 삽입됩니다.)
 	 2. 큐가 비어있지 않는 동안
-	 -> 1. 큐에 상단 객체를 복사
-	    2. 방향키를 입력받고
-	    3. 해당 방향의 위치가 출구이면 큐의 맨앞 요소를 삭제한 후 다시 이동한 위치를 큐에 삽입하고 삭제합니다.
-		   이전위치는 다시 길로, 이동한 위치는 현재 위치로 표시합니다. 그리고 게임이 종료됩니다.
-	    4. 해당 방향의 위치가 갈 수 있는 길이고, 벽이 아니면 큐의 맨앞 요소를 삭제한 후 다시 이동한 위치를 큐에 삽입하고 삭제합니다.
+	 -> 1. 큐에 상단 객체를 복사 (이전위치)
+		2. 방향키를 입력받고
+		3. 해당 방향의 위치가 출구이면 큐의 상단 객체(이전위치)를 삭제한 후 다시 이동한 위치를 큐에 삽입하고 삭제합니다.
+		   이전위치는 다시 길로, 이동한 위치는 현재 위치로 표시합니다. 그리고 게임이 종료됩니다. 이 때 queue에는 아무 요소가 남아있지 않습니다.
+		4. 해당 방향의 위치가 갈 수 있는 길이고, 벽이 아니면 큐의 맨앞 요소(이전 위치)를 삭제한 후 다시 이동한 위치를 큐에 삽입합니다.
 		   이전위치는 다시 길로, 이동한 위치는 현재 위치로 표시합니다.
-	 3. count는 dequeue 할 때 마다 증가합니다.	
-	*/ 
+	 3. count는 dequeue 할 때 마다 증가합니다. (입구~출구까지 사용자가 지나간 모든 위치를 큐에 삽입하기에, 방향키의 입력 횟수와 동일합니다.)
+	*/
 
 	void QueueMazeGame()
 	{
@@ -264,7 +278,7 @@ public:
 				}
 				else if (isValidLoc(r - 1, c) && map[r - 1][c] != '1') //갈 수 있는 위치이고, 벽이 아니면
 				{
-					system("cls"); 
+					system("cls");
 					map[r][c] = '0'; //이전 위치 길로 변경
 					map[r - 1][c] = '.';  //이동한 위치
 					locQueue.dequeue(); //큐 상단 객체 삭제
@@ -278,9 +292,9 @@ public:
 				{
 					map[r][c] = '0';
 					map[r + 1][c] = '.';
-					locQueue.dequeue(); 
-					locQueue.enqueue(new Node(r + 1, c)); 
-					locQueue.dequeue(); 
+					locQueue.dequeue();
+					locQueue.enqueue(new Node(r + 1, c));
+					locQueue.dequeue();
 					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
@@ -294,7 +308,7 @@ public:
 					system("cls");
 					map[r][c] = '0';
 					map[r + 1][c] = '.';
-					locQueue.dequeue(); 
+					locQueue.dequeue();
 					locQueue.enqueue(new Node(r + 1, c));
 					printMap();
 					count++;
@@ -307,7 +321,7 @@ public:
 					map[r][c - 1] = '.';
 					locQueue.dequeue();
 					locQueue.enqueue(new Node(r, c - 1));
-					locQueue.dequeue(); 
+					locQueue.dequeue();
 					count++;
 					system("cls");
 					printf("\n!탐색 성공!\n");
@@ -333,7 +347,7 @@ public:
 					map[r][c] = '0';
 					map[r][c + 1] = '.';
 					locQueue.dequeue();
-					locQueue.enqueue(new Node(r, c + 1)); 
+					locQueue.enqueue(new Node(r, c + 1));
 					locQueue.dequeue();
 					count++;
 					system("cls");
@@ -361,7 +375,7 @@ public:
 		}
 	}
 
-	//__________________________________________________________________________________________________
+	/*---------------------------------------------------------------------*/
 
 	void compare_init(int w, int h)
 	{
@@ -499,10 +513,12 @@ public:
 		}
 		cout << endl;
 	}
+
 	void compare()
 	{
 		int stackCount = 0;
 		int queueCount = 0;
+
 		while (1)
 		{
 			comparePrintMap();
@@ -516,9 +532,9 @@ public:
 				printf("스택 탐색 %d회, 큐 탐색 %d회 \n", stackCount, queueCount);
 				if (stackCount > queueCount)
 					printf("큐(너비 우선 탐색)가 더 빠릅니다.\n");
-				else if(stackCount<queueCount)
+				else if (stackCount < queueCount)
 					printf("스택(깊이 우선 탐색)이 더 빠릅니다.\n");
-				else if(stackCount==queueCount)
+				else if (stackCount == queueCount)
 					printf("스택과 큐의 탐색 횟수가 동일합니다.\n");
 
 				comparePrintMap();
@@ -536,7 +552,7 @@ public:
 
 				if (stackMap[sr][sc] == 'x')
 				{
-					while(stack.isEmpty() == false)
+					while (stack.isEmpty() == false)
 						stack.pop();
 				}
 				else if (stackMap[sr][sc] != '.')
@@ -573,5 +589,60 @@ public:
 			}
 		}
 		printf("미로 탐색 실패\n");
+	}
+
+	void resultSatckWay()
+	{
+		printf("[ Stack 경로 ]\n");
+		while (stack.isEmpty() == false) {
+			Location2D* here = stack.peek();
+			stack.pop();
+
+			int r = here->row;
+			int c = here->col;
+
+			printf("(%d,%d) ", r, c);
+
+			if (map[r][c] == 'x')
+			{
+				printf("\n!탐색 성공!\n");
+				return;
+			}
+			else {
+				map[r][c] = '.';
+				if (isValidLoc(r - 1, c)) stack.push(new Node(r - 1, c));
+				if (isValidLoc(r + 1, c)) stack.push(new Node(r + 1, c));
+				if (isValidLoc(r, c - 1)) stack.push(new Node(r, c - 1));
+				if (isValidLoc(r, c + 1)) stack.push(new Node(r, c + 1));
+			}
+		}
+		printf("미로 탐색 실패\n");
+	}
+	void resultQueueWay()
+	{
+		printf("\n[ Queue 경로 ]\n");
+		while (locQueue.isEmpty() == false)
+		{
+			Location2D* here = locQueue.peek();
+			locQueue.dequeue();
+			int r = here->row;
+			int c = here->col;
+
+			printf("(%d,%d) ", r, c);
+
+			if (map[r][c] == 'x') {
+				printf("\n!탐색 성공!\n");
+				return;
+			}
+			else if (map[r][c] != '.')
+			{
+				map[r][c] = '.';
+				if (isValidLoc(r - 1, c)) locQueue.enqueue(new Node(r - 1, c));
+				if (isValidLoc(r + 1, c)) locQueue.enqueue(new Node(r + 1, c));
+				if (isValidLoc(r, c - 1)) locQueue.enqueue(new Node(r, c - 1));
+				if (isValidLoc(r, c + 1)) locQueue.enqueue(new Node(r, c + 1));
+			}
+		}
+		printf("미로 탐색 실패\n\n");
 	}
 };
