@@ -155,14 +155,14 @@ public:
 				switch (nu)
 				{
 				case 0:	//상 이동
-					if (er - 1 >= 0 && ec >= 0 && er + 1 < height && ec < width && map[er - 1][ec] == '0')//상단이 통로인 경우
+					if (er - 1 >= 0 && ec >= 0 && er - 1 < height && ec < width && map[er - 1][ec] == '0')//상단이 통로인 경우
 					{
 						enemy.pop();
 						enemy.push(new Node(er - 1, ec));
 						map[er - 1][ec] = '2';
 						break;
 					}
-					else if (er - 1 >= 0 && ec >= 0 && er + 1 < height && ec < width && map[er - 1][ec] == '.')	//자신이 적의 상단 위치한 경우 실패
+					else if (er - 1 >= 0 && ec >= 0 && er - 1 < height && ec < width && map[er - 1][ec] == '.')	//자신이 적의 상단 위치한 경우 실패
 					{
 						enemy.pop();
 						map[er - 1][ec] = '2';
